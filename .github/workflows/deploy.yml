@@ -14,29 +14,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Получение исходного кода репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Настройка среды Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. Установка зависимостей
       - name: Install dependencies
         run: npm install
 
-      # 4. ЛР 19 (Задание 3): Автоматическое тестирование до сборки (останавливает пайплайн при ошибке)
       - name: Run unit tests
         run: npm test
 
-      # 5. Сборка NestJS-приложения
       - name: Build application
         run: npm run build
 
-      # 6. Авторизация в Docker Hub (только при push в main)
+      - name: Verify secrets are not empty
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DH_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DH_USER" ]; then echo "ОШИБКА: секрет DOCKERHUB_USERNAME пустой или не найден в Repository secrets!"; exit 1; fi
+          if [ -z "$DH_PASS" ]; then echo "ОШИБКА: секрет DOCKERHUB_TOKEN пустой или не найден в Repository secrets!"; exit 1; fi
+          if [ -z "$RENDER_HOOK" ]; then echo "ОШИБКА: секрет RENDER_DEPLOY_HOOK_URL пустой или не найден в Repository secrets!"; exit 1; fi
+          echo "Все 3 секрета успешно прочитаны."
+
       - name: Log in to Docker Hub
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/login-action@v3
@@ -44,7 +50,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 7. Сборка и публикация оптимизированного Docker-образа из ЛР 18
       - name: Build and push Docker image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v5
@@ -56,12 +61,6 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-labs-16-19:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-labs-16-19:${{ github.sha }}
 
-      # 8. ЛР 19: Развертывание приложения на Render через Deploy Hook
       - name: Trigger Render Deployment
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
-            echo "RENDER_DEPLOY_HOOK_URL secret is not set. Skipping webhook trigger."
-            exit 1
-          fi
-          curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        run: curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
