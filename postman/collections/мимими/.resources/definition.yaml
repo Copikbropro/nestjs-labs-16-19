@@ -1,0 +1,10 @@
+$kind: collection
+description: |-
+  Полная коллекция запросов для проверки объединенного проекта лабораторных работ №16, №17, №18 и №19.
+
+  Переменная {{baseUrl}} по умолчанию равна http://localhost:3000 (для локального Docker). Для проверки ЛР №19 на Render замените {{baseUrl}} на URL вашего сервиса (например, https://nestjs-labs-16-19.onrender.com).
+variables:
+  baseUrl: http://localhost:3000
+  token: ""
+  userId: "1"
+  taskId: "1"

@@ -1,0 +1,14 @@
+$kind: http-request
+description: "ЛР 17 (Задание 3): Назначение ролей пользователю (отношение ManyToMany User <-> Role). Доступно только администратору."
+url: http://localhost:3000/users/1/roles
+method: PATCH
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+body:
+  type: text
+  content: |-
+    {
+      "roles": ["user", "administrator"]
+    }
+order: 3000

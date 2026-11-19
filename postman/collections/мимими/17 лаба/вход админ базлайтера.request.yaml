@@ -1,0 +1,22 @@
+$kind: http-request
+description: Авторизация под администратором. В переменную {{token}} сохраняется токен с ролью administrator.
+url: http://localhost:3000/auth/login
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "admin1",
+      "password": "admin1234"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const jsonData = pm.response.json();
+      if (jsonData.access_token) {
+          pm.collectionVariables.set('token', jsonData.access_token);
+      }
+    language: text/javascript
+order: 4000

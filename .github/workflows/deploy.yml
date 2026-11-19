@@ -1,0 +1,67 @@
+name: CI/CD Pipeline (Test, Build, Docker Hub & Render Deploy)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-and-deploy:
+    name: Test, Build Docker Image and Deploy to Render
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Получение исходного кода репозитория
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Настройка среды Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Установка зависимостей
+      - name: Install dependencies
+        run: npm install
+
+      # 4. ЛР 19 (Задание 3): Автоматическое тестирование до сборки (останавливает пайплайн при ошибке)
+      - name: Run unit tests
+        run: npm test
+
+      # 5. Сборка NestJS-приложения
+      - name: Build application
+        run: npm run build
+
+      # 6. Авторизация в Docker Hub (только при push в main)
+      - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 7. Сборка и публикация оптимизированного Docker-образа из ЛР 18
+      - name: Build and push Docker image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-labs-16-19:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/nestjs-labs-16-19:${{ github.sha }}
+
+      # 8. ЛР 19: Развертывание приложения на Render через Deploy Hook
+      - name: Trigger Render Deployment
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL secret is not set. Skipping webhook trigger."
+            exit 1
+          fi
+          curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"

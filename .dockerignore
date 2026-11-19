@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.github
+.env
+coverage
+*.md
+*.txt
+*.zip
+postman_collection.json

@@ -1,0 +1,10 @@
+$kind: http-request
+description: "ЛР 16 (Задание 1) + ЛР 17 (Задание 2): Получение списка всех задач. Без валидного токена вернет 401 Unauthorized."
+url: http://localhost:3000/tasks
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: json
+  content: ""
+order: 2000

@@ -1,0 +1,26 @@
+$kind: http-request
+description: "ЛР 17 (Задание 1): Регистрирует нового пользователя с ролью 'user', хеширует пароль через bcrypt и сохраняет в PostgreSQL."
+url: http://localhost:3000/auth/register
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "student1",
+      "email": "student1@psu.by",
+      "password": "pass1234"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const jsonData = pm.response.json();
+      if (jsonData.access_token) {
+          pm.collectionVariables.set('token', jsonData.access_token);
+      }
+      if (jsonData.user && jsonData.user.id) {
+          pm.collectionVariables.set('userId', jsonData.user.id);
+      }
+    language: text/javascript
+order: 1000

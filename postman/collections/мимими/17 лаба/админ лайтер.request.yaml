@@ -1,0 +1,24 @@
+$kind: http-request
+description: "ЛР 17 (Задание 3): Регистрирует пользователя с ролью 'administrator' для тестирования RolesGuard."
+url: http://localhost:3000/auth/register
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "admin1",
+      "email": "admin1@psu.by",
+      "password": "admin1234",
+      "role": "administrator"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const jsonData = pm.response.json();
+      if (jsonData.access_token) {
+          pm.collectionVariables.set('token', jsonData.access_token);
+      }
+    language: text/javascript
+order: 2000

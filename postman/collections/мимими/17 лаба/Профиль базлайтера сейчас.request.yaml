@@ -1,0 +1,7 @@
+$kind: http-request
+description: "ЛР 17 (Задание 2): Проверка валидации JWT через JwtStrategy и JwtAuthGuard."
+url: "{{baseUrl}}/auth/profile"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 5000

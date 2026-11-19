@@ -1,0 +1,25 @@
+$kind: http-request
+description: "ЛР 16 (Задания 1-2): Создание задачи в PostgreSQL, связанной с конкретным пользователем userId."
+url: http://localhost:3000/tasks
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+body:
+  type: text
+  content: |-
+    {
+      "title": "Выполнить лабораторные работы №16-19",
+      "description": "Настроить TypeORM, JWT, Docker Compose и деплой на Render",
+      "completed": false,
+      "userId": {{userId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const jsonData = pm.response.json();
+      if (jsonData.id) {
+          pm.collectionVariables.set('taskId', jsonData.id);
+      }
+    language: text/javascript
+order: 1000

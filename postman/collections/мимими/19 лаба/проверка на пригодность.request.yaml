@@ -1,0 +1,5 @@
+$kind: http-request
+description: Проверяет, что контейнер Docker или облачный сервис на Render успешно запущен и отвечает.
+url: http://localhost:3000/health
+method: GET
+order: 1000

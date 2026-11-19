@@ -1,0 +1,10 @@
+$kind: http-request
+description: "ЛР 17 (Задание 3): Маршрут защищен RolesGuard с декоратором @Roles('administrator'). Если активен токен обычного пользователя — вернет 403 Forbidden; если администратора — 200 OK."
+url: http://localhost:3000/tasks/1
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: json
+  content: ""
+order: 6000

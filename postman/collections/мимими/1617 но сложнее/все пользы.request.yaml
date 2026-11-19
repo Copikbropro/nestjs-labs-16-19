@@ -1,0 +1,7 @@
+$kind: http-request
+description: Возвращает всех пользователей с их ролями и задачами (пароли скрыты).
+url: http://localhost:3000/users
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 1000
